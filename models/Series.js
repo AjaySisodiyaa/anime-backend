@@ -15,7 +15,6 @@ const seriesSchema = new mongoose.Schema(
     episode: [
       {
         type: String,
-        unique: true,
       },
     ],
   },

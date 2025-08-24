@@ -12,12 +12,17 @@ const app = express();
 app.use(cors());
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log("Connected to MongoDB");
+
+    try {
+      await mongoose.connection.db.collection("series").dropIndex("episode_1");
+      console.log("Dropped episode_1 index ✅");
+    } catch (err) {
+      console.log("Index not found or already removed:", err.message);
+    }
   })
-  .catch((err) => {
-    console.log(err);
-  });
+  .catch((err) => console.log(err));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(
