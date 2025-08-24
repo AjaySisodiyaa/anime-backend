@@ -43,7 +43,7 @@ Router.post("/", async (req, res) => {
 // get all series
 Router.get("/", async (req, res) => {
   try {
-    const series = await Series.find({});
+    const series = await Series.find({}).sort({ updatedAt: -1 });
     res.json(series);
   } catch (err) {
     res.status(500).json({ error: err.message });
