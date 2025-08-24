@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import seriesRouter from "./routes/series.js";
+import movieRouter from "./routes/movie.js";
 import bodyParser from "body-parser";
 import fileUpload from "express-fileupload";
 
@@ -34,6 +35,7 @@ app.use(
 );
 
 app.use("/series", seriesRouter);
+app.use("/movie", movieRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
