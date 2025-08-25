@@ -72,7 +72,7 @@ Router.get("/tag/:tag", async (req, res) => {
 // Get movie by slug
 Router.get("/:slug", async (req, res) => {
   try {
-    const movie = await Movie.find({
+    const movie = await Movie.findOne({
       slug: { $regex: req.params.slug, $options: "i" },
     });
     if (!movie) return res.status(404).json({ message: "Movie not found" });

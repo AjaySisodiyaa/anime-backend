@@ -35,7 +35,7 @@ Router.get("/tag/:tag", async (req, res) => {
 
 Router.get("/:slug", async (req, res) => {
   try {
-    const series = await Series.find({
+    const series = await Series.findOne({
       slug: { $regex: req.params.slug, $options: "i" },
     });
     if (!series) return res.status(404).json({ message: "Series not found" });
