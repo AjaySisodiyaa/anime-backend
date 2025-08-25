@@ -60,7 +60,9 @@ Router.post("/auto/id", async (req, res) => {
 // Get movies by tag
 Router.get("/tag/:tag", async (req, res) => {
   try {
-    const movies = await Movie.find({ tags: req.params.tag });
+    const movies = await Movie.find({
+      tags: { $regex: req.params.tag, $options: "i" },
+    });
     res.json(movies);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -70,7 +72,9 @@ Router.get("/tag/:tag", async (req, res) => {
 // Get movie by slug
 Router.get("/:slug", async (req, res) => {
   try {
-    const movie = await Movie.findOne({ slug: req.params.slug });
+    const movie = await Movie.find({
+      slug: { $regex: req.params.slug, $options: "i" },
+    });
     if (!movie) return res.status(404).json({ message: "Movie not found" });
     res.json(movie);
   } catch (err) {

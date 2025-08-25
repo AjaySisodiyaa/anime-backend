@@ -24,7 +24,9 @@ cloudinary.api
 
 Router.get("/tag/:tag", async (req, res) => {
   try {
-    const series = await Series.find({ tags: req.params.tag });
+    const series = await Series.find({
+      tags: { $regex: req.params.tag, $options: "i" },
+    });
     res.json(series);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -33,7 +35,9 @@ Router.get("/tag/:tag", async (req, res) => {
 
 Router.get("/:slug", async (req, res) => {
   try {
-    const series = await Series.findOne({ slug: req.params.slug });
+    const series = await Series.find({
+      slug: { $regex: req.params.slug, $options: "i" },
+    });
     if (!series) return res.status(404).json({ message: "Series not found" });
     res.json(series);
   } catch (err) {
