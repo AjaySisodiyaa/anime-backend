@@ -61,17 +61,27 @@ export async function normalizeMovie(tm, language = "en-IN") {
 /** Normalize a TMDB "tv" result into your schema shape (Series) */
 export async function normalizeSeries(tv, language = "en-IN") {
   const genres = await getGenres("tv", language);
-  const tagNames = (tv.genre_ids || [])
-    .map((id) => genres.find((g) => g.id === id)?.name)
-    .filter(Boolean);
+  const tagNames = tv.genre_ids
+    ? tv.genre_ids
+        .map((id) => genres.find((g) => g.id === id)?.name)
+        .filter(Boolean)
+    : (tv.genres || []).map((g) => g.name);
+
+  let keywords = [];
+  try {
+    const kwRes = await client.get(`/tv/${tv.id}/keywords`);
+    keywords = (kwRes.data.results || []).map((k) => k.name.toLowerCase());
+  } catch (err) {
+    console.log("No keywords found:", err.message);
+  }
 
   return {
     title: tv.name || tv.original_name,
     description: tv.overview || "",
     image: tv.poster_path ? `${IMG_BASE}/w780${tv.poster_path}` : "",
     backdrop: tv.backdrop_path ? `${IMG_BASE}/w1280${tv.backdrop_path}` : "",
-    releaseDate: tv.first_air_date || null,
-    tags: tagNames,
+    releaseDate: tv.first_air_date || new Date(),
+    tags: [...new Set([...tagNames, ...keywords])],
   };
 }
 

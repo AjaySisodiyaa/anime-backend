@@ -42,7 +42,7 @@ Router.get("/:slug", async (req, res) => {
 });
 
 // auto-create by TMDB ID
-Router.post("/autoById", async (req, res) => {
+Router.post("/auto/Id", async (req, res) => {
   try {
     const { tmdbId, language = "en-US" } = req.body;
     if (!tmdbId) return res.status(400).json({ error: "tmdbId is required" });
@@ -59,12 +59,18 @@ Router.post("/autoById", async (req, res) => {
         .status(409)
         .json({ error: "Series already exists", series: existing });
 
+    const episodesToAdd = req.body.episode
+      .split(",")
+      .map((ep) => ep.trim())
+      .filter((ep) => ep.length > 0);
+
     const doc = new Series({
       title: norm.title,
       description: norm.description,
       image: norm.image,
       tags: norm.tags,
       releaseDate: norm.releaseDate,
+      episode: episodesToAdd || [],
     });
 
     await doc.save();
@@ -119,6 +125,7 @@ Router.post("/", async (req, res) => {
       req.files.image.tempFilePath,
       { resource_type: "image" }
     );
+
     const series = new Series({
       title: req.body.title,
       description: req.body.description || "", // Optional description
