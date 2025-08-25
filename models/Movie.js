@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
 
 const movieSchema = new mongoose.Schema(
   {
@@ -15,11 +16,24 @@ const movieSchema = new mongoose.Schema(
     movie: {
       type: String,
     },
+    description: {
+      type: String,
+    },
+    slug: { type: String, unique: true }, // SEO-friendly URL
+    releaseDate: { type: Date },
+    tags: [{ type: String }], // 👈 Array of tags
   },
   {
     timestamps: true,
   }
 );
+
+movieSchema.pre("save", function (next) {
+  if (this.isModified("title")) {
+    this.slug = slugify(this.title, { lower: true, strict: true });
+  }
+  next();
+});
 
 const movie = mongoose.model("Movie", movieSchema);
 
