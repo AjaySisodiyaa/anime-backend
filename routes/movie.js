@@ -112,7 +112,7 @@ Router.get("/", async (req, res) => {
 });
 
 // get a single movie
-Router.get("/:id", async (req, res) => {
+Router.get("/id/:id", async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id);
     if (!movie) {

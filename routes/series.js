@@ -148,7 +148,7 @@ Router.get("/", async (req, res) => {
 });
 
 // get a single series
-Router.get("/:id", async (req, res) => {
+Router.get("/id/:id", async (req, res) => {
   try {
     const series = await Series.findById(req.params.id);
     if (!series) {
