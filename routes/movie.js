@@ -4,7 +4,11 @@ import express from "express";
 const Router = express.Router();
 import Movie from "../models/Movie.js";
 import { v2 as cloudinary } from "cloudinary";
-import { searchMovieByTitle, normalizeMovie } from "../services/tmdb.js";
+import {
+  searchMovieByTitle,
+  normalizeMovie,
+  getMovieById,
+} from "../services/tmdb.js";
 import slugify from "slugify";
 
 cloudinary.config({
@@ -18,6 +22,42 @@ cloudinary.api
   .then((res) => console.log("Cloudinary OK:", res))
   .catch((err) => console.error("Cloudinary FAIL:", err));
 
+/** Auto-create Movie from TMDB ID */
+Router.post("/auto/id", async (req, res) => {
+  try {
+    const { tmdbId, language = "en-IN" } = req.body;
+    if (!tmdbId) return res.status(400).json({ error: "tmdbId is required" });
+
+    const tm = await getMovieById(tmdbId, language);
+    if (!tm) return res.status(404).json({ error: "No movie found on TMDB" });
+
+    const norm = await normalizeMovie(tm, language);
+
+    // Prevent duplicates
+    const willSlug = slugify(norm.title, { lower: true, strict: true });
+    const existing = await Movie.findOne({ slug: willSlug });
+    if (existing)
+      return res
+        .status(409)
+        .json({ error: "Movie already exists", movie: existing });
+
+    const movie = new Movie({
+      title: norm.title,
+      description: norm.description,
+      image: norm.image,
+      movie: req.body.movie || "", // optional streaming link
+      tags: norm.tags,
+      releaseDate: norm.releaseDate || new Date(),
+    });
+
+    await movie.save();
+    res.json(movie);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get movies by tag
 Router.get("/tag/:tag", async (req, res) => {
   try {
     const movies = await Movie.find({ tags: req.params.tag });

@@ -105,3 +105,8 @@ export async function getSeriesById(id, language = "en-US") {
   });
   return res.data;
 }
+export async function getMovieById(id, language = "en-IN") {
+  const url = `${BASE}/movie/${id}?api_key=${API_KEY}&language=${language}`;
+  const res = await axios.get(url);
+  return res.data;
+}
