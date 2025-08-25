@@ -28,6 +28,8 @@ const movieSchema = new mongoose.Schema(
   }
 );
 
+movieSchema.index({ title: "text", description: "text", tags: "text" });
+
 movieSchema.pre("save", function (next) {
   if (this.isModified("title")) {
     this.slug = slugify(this.title, { lower: true, strict: true });

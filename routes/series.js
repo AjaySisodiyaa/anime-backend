@@ -22,6 +22,21 @@ cloudinary.api
   .then((res) => console.log("Cloudinary OK:", res))
   .catch((err) => console.error("Cloudinary FAIL:", err));
 
+// Search series by keyword (title, tags, description)
+Router.get("/search/:keyword", async (req, res) => {
+  try {
+    const regex = new RegExp(req.params.keyword, "i"); // case-insensitive
+
+    const series = await Series.find({
+      $or: [{ title: regex }, { description: regex }, { tags: regex }],
+    });
+
+    res.json(series);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 Router.get("/tag/:tag", async (req, res) => {
   try {
     const series = await Series.find({

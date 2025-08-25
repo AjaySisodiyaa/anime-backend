@@ -57,6 +57,21 @@ Router.post("/auto/id", async (req, res) => {
   }
 });
 
+// Search movies by keyword (title, tags, description)
+Router.get("/search/:keyword", async (req, res) => {
+  try {
+    const regex = new RegExp(req.params.keyword, "i"); // case-insensitive
+
+    const movies = await Movie.find({
+      $or: [{ title: regex }, { description: regex }, { tags: regex }],
+    });
+
+    res.json(movies);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get movies by tag
 Router.get("/tag/:tag", async (req, res) => {
   try {

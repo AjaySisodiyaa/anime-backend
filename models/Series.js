@@ -28,6 +28,8 @@ const seriesSchema = new mongoose.Schema(
   }
 );
 
+seriesSchema.index({ title: "text", description: "text", tags: "text" });
+
 seriesSchema.pre("save", function (next) {
   if (this.isModified("title")) {
     this.slug = slugify(this.title, { lower: true, strict: true });

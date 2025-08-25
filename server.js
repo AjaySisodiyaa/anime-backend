@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import seriesRouter from "./routes/series.js";
 import movieRouter from "./routes/movie.js";
+import searchRouter from "./routes/search.js";
 import bodyParser from "body-parser";
 import fileUpload from "express-fileupload";
 
@@ -36,6 +37,7 @@ app.use(
 
 app.use("/series", seriesRouter);
 app.use("/movie", movieRouter);
+app.use("/search", searchRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
