@@ -52,15 +52,13 @@ app.get("/sitemap.xml", async (req, res) => {
       "https://anime-backend-5ok3.onrender.com/series"
     );
 
+    console.log("✅ Movies response:", moviesRes.data);
+    console.log("✅ Series response:", seriesRes.data);
+
     const movies = moviesRes.data || [];
     const series = seriesRes.data || [];
 
-    let urls = [
-      `${baseUrl}/`,
-      `${baseUrl}/movie`,
-      `${baseUrl}/series`,
-      `${baseUrl}/search`,
-    ];
+    let urls = [`${baseUrl}/`, `${baseUrl}/movie`, `${baseUrl}/search`];
 
     // movies
     movies.forEach((m) => {
