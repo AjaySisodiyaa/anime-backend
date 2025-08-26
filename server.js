@@ -44,7 +44,6 @@ app.get("/sitemap.xml", async (req, res) => {
   try {
     const baseUrl = "https://majelo.onrender.com";
 
-    // fetch all movies & series from backend
     const moviesRes = await axios.get(
       "https://anime-backend-5ok3.onrender.com/movie"
     );
@@ -52,25 +51,28 @@ app.get("/sitemap.xml", async (req, res) => {
       "https://anime-backend-5ok3.onrender.com/series"
     );
 
-    console.log("✅ Movies response:", moviesRes.data);
-    console.log("✅ Series response:", seriesRes.data);
+    const movies = Array.isArray(moviesRes.data)
+      ? moviesRes.data
+      : moviesRes.data.data || [];
+    const series = Array.isArray(seriesRes.data)
+      ? seriesRes.data
+      : seriesRes.data.data || [];
 
-    const movies = moviesRes.data || [];
-    const series = seriesRes.data || [];
+    let urls = [
+      `${baseUrl}/`,
+      `${baseUrl}/movie`,
+      `${baseUrl}/series`,
+      `${baseUrl}/search`,
+    ];
 
-    let urls = [`${baseUrl}/`, `${baseUrl}/movie`, `${baseUrl}/search`];
-
-    // movies
     movies.forEach((m) => {
       urls.push(`${baseUrl}/movie/${m.slug || m._id}`);
     });
 
-    // series
     series.forEach((s) => {
       urls.push(`${baseUrl}/series/${s.slug || s._id}`);
     });
 
-    // Build XML
     const xml = `<?xml version="1.0" encoding="UTF-8"?> 
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       ${urls
@@ -88,8 +90,8 @@ app.get("/sitemap.xml", async (req, res) => {
     res.header("Content-Type", "application/xml");
     res.send(xml);
   } catch (err) {
-    console.error("❌ Error generating sitemap:", err.message);
-    res.status(500).send("Error generating sitemap");
+    console.error("❌ Error generating sitemap:", err);
+    res.status(500).send("Error generating sitemap: " + err.message);
   }
 });
 
