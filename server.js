@@ -41,47 +41,58 @@ app.use("/search", searchRouter);
 
 // sitemap
 app.get("/sitemap.xml", async (req, res) => {
-  const baseUrl = "https://majelo.onrender.com";
+  try {
+    const baseUrl = "https://majelo.onrender.com";
 
-  // fetch all movies & series from backend
-  const movies = await axios.get(
-    "https://anime-backend-5ok3.onrender.com/movie"
-  );
-  const series = await axios.get(
-    "https://anime-backend-5ok3.onrender.com/series"
-  );
+    // fetch all movies & series from backend
+    const moviesRes = await axios.get(
+      "https://anime-backend-5ok3.onrender.com/movie"
+    );
+    const seriesRes = await axios.get(
+      "https://anime-backend-5ok3.onrender.com/series"
+    );
 
-  let urls = [
-    `${baseUrl}/`,
-    `${baseUrl}/movie`,
-    `${baseUrl}/series`,
-    `${baseUrl}/search`,
-  ];
+    const movies = moviesRes.data || [];
+    const series = seriesRes.data || [];
 
-  movies.data.forEach((m) => {
-    urls.push(`${baseUrl}/movie/${m.slug || m._id}`);
-  });
+    let urls = [
+      `${baseUrl}/`,
+      `${baseUrl}/movie`,
+      `${baseUrl}/series`,
+      `${baseUrl}/search`,
+    ];
 
-  series.data.forEach((s) => {
-    urls.push(`${baseUrl}/series/${s.slug || s._id}`);
-  });
+    // movies
+    movies.forEach((m) => {
+      urls.push(`${baseUrl}/movie/${m.slug || m._id}`);
+    });
 
-  res.header("Content-Type", "application/xml");
-  res.send(
-    `<?xml version="1.0" encoding="UTF-8"?> 
-     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-       ${urls
-         .map(
-           (url) => `
-         <url>
-           <loc>${url}</loc>
-           <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
-           <priority>0.8</priority>
-         </url>`
-         )
-         .join("")}
-     </urlset>`
-  );
+    // series
+    series.forEach((s) => {
+      urls.push(`${baseUrl}/series/${s.slug || s._id}`);
+    });
+
+    // Build XML
+    const xml = `<?xml version="1.0" encoding="UTF-8"?> 
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      ${urls
+        .map(
+          (url) => `
+        <url>
+          <loc>${url}</loc>
+          <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
+          <priority>0.8</priority>
+        </url>`
+        )
+        .join("")}
+    </urlset>`;
+
+    res.header("Content-Type", "application/xml");
+    res.send(xml);
+  } catch (err) {
+    console.error("❌ Error generating sitemap:", err.message);
+    res.status(500).send("Error generating sitemap");
+  }
 });
 
 app.listen(PORT, () => {
