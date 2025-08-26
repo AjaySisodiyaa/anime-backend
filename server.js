@@ -7,6 +7,7 @@ import movieRouter from "./routes/movie.js";
 import searchRouter from "./routes/search.js";
 import bodyParser from "body-parser";
 import fileUpload from "express-fileupload";
+import axios from "axios";
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
