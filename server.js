@@ -41,47 +41,41 @@ app.use("/search", searchRouter);
 
 // sitemap
 app.get("/sitemap.xml", async (req, res) => {
-  const baseUrl = "https://majelo.onrender.com";
+  try {
+    // Example: dynamic pages fetched from DB
+    const movies = [
+      { slug: "naruto", updated: "2025-08-25" },
+      { slug: "one-piece", updated: "2025-08-25" },
+    ];
 
-  // fetch all movies & series from backend
-  const movies = await axios.get(
-    "https://anime-backend-5ok3.onrender.com/movie"
-  );
-  const series = await axios.get(
-    "https://anime-backend-5ok3.onrender.com/series"
-  );
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-  let urls = [
-    `${baseUrl}/`,
-    `${baseUrl}/movie`,
-    `${baseUrl}/series`,
-    `${baseUrl}/search`,
-  ];
+    // Main pages
+    xml += `
+      <url><loc>https://majelo.onrender.com/</loc><priority>1.0</priority></url>
+      <url><loc>https://majelo.onrender.com/movie</loc><priority>0.8</priority></url>
+      <url><loc>https://majelo.onrender.com/series</loc><priority>0.8</priority></url>
+      <url><loc>https://majelo.onrender.com/search</loc><priority>0.5</priority></url>
+    `;
 
-  movies.data.forEach((m) => {
-    urls.push(`${baseUrl}/movie/${m.slug || m._id}`);
-  });
+    // Dynamic movie pages
+    movies.forEach((m) => {
+      xml += `
+        <url>
+          <loc>https://majelo.onrender.com/movie/${m.slug}</loc>
+          <lastmod>${m.updated}</lastmod>
+          <priority>0.6</priority>
+        </url>`;
+    });
 
-  series.data.forEach((s) => {
-    urls.push(`${baseUrl}/series/${s.slug || s._id}`);
-  });
+    xml += `</urlset>`;
 
-  res.header("Content-Type", "application/xml");
-  res.send(
-    `<?xml version="1.0" encoding="UTF-8"?> 
-     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-       ${urls
-         .map(
-           (url) => `
-         <url>
-           <loc>${url}</loc>
-           <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
-           <priority>0.8</priority>
-         </url>`
-         )
-         .join("")}
-     </urlset>`
-  );
+    res.header("Content-Type", "application/xml");
+    res.send(xml);
+  } catch (err) {
+    res.status(500).send("Error generating sitemap");
+  }
 });
 
 app.listen(PORT, () => {
