@@ -200,7 +200,13 @@ Router.post("/", async (req, res) => {
 // get all series
 Router.get("/", async (req, res) => {
   try {
-    const series = await Series.find({}).sort({ updatedAt: -1 });
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const skip = (page - 1) * limit;
+    const series = await Series.find({})
+      .sort({ updatedAt: -1 })
+      .limit(limit)
+      .skip(skip);
     res.json(series);
   } catch (err) {
     res.status(500).json({ error: err.message });

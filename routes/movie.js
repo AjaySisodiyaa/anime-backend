@@ -196,8 +196,14 @@ Router.post("/auto", async (req, res) => {
 
 // get all movie
 Router.get("/", async (req, res) => {
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 10;
+  const skip = (page - 1) * limit;
   try {
-    const movie = await Movie.find({}).sort({ updatedAt: -1 });
+    const movie = await Movie.find({})
+      .sort({ updatedAt: -1 })
+      .limit(limit)
+      .skip(skip);
     res.json(movie);
   } catch (err) {
     res.status(500).json({ error: err.message });
