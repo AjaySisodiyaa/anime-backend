@@ -41,12 +41,17 @@ function pickBest(results = []) {
     )[0];
 }
 
-/** Normalize a TMDB "movie" result into your schema shape */
-export async function normalizeMovie(tm, language = "en-IN") {
+/** Normalize a TMDB "movie" result into your schema shape */ export async function normalizeMovie(
+  tm,
+  language = "en-IN"
+) {
   const genres = await getGenres("movie", language);
-  const tagNames = (tm.genre_ids || [])
-    .map((id) => genres.find((g) => g.id === id)?.name)
-    .filter(Boolean);
+
+  const tagNames = tm.genre_ids
+    ? tm.genre_ids
+        .map((id) => genres.find((g) => g.id === id)?.name)
+        .filter(Boolean)
+    : (tm.genres || []).map((g) => g.name);
 
   return {
     title: tm.title || tm.original_title,
@@ -54,7 +59,7 @@ export async function normalizeMovie(tm, language = "en-IN") {
     image: tm.poster_path ? `${IMG_BASE}/w780${tm.poster_path}` : "",
     backdrop: tm.backdrop_path ? `${IMG_BASE}/w1280${tm.backdrop_path}` : "",
     releaseDate: tm.release_date || null,
-    tags: tagNames, // -> ["Animation","Adventure",...]
+    tags: tagNames, // ✅ now works for both search + direct movie fetch
   };
 }
 
