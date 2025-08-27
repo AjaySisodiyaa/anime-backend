@@ -10,6 +10,7 @@ import {
   getSeriesById,
 } from "../services/tmdb.js";
 import slugify from "slugify";
+import PopularSeries from "../models/PopularSeries.js";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,6 +22,39 @@ cloudinary.api
   .ping()
   .then((res) => console.log("Cloudinary OK:", res))
   .catch((err) => console.error("Cloudinary FAIL:", err));
+
+Router.get("/popular", async (req, res) => {
+  try {
+    const series = await PopularSeries.find()
+      .sort({ views: -1 })
+      .limit(10)
+      .populate("seriesId");
+
+    res.json(series);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// When a series is watched
+Router.post("/:id/watch", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    let popular = await PopularSeries.findOne({ seriesId: id });
+
+    if (!popular) {
+      popular = new PopularSeries({ seriesId: id, views: 1 });
+    } else {
+      popular.views += 1;
+    }
+
+    await popular.save();
+    res.json(popular);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Search series by keyword (title, tags, description)
 Router.get("/search/:keyword", async (req, res) => {

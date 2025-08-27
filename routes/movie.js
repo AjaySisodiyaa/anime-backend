@@ -10,6 +10,7 @@ import {
   getMovieById,
 } from "../services/tmdb.js";
 import slugify from "slugify";
+import PopularMovie from "../models/PopularMovie.js";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,6 +22,39 @@ cloudinary.api
   .ping()
   .then((res) => console.log("Cloudinary OK:", res))
   .catch((err) => console.error("Cloudinary FAIL:", err));
+
+Router.get("/popular", async (req, res) => {
+  try {
+    const movies = await PopularMovie.find()
+      .sort({ views: -1 }) // or likes, or rating
+      .limit(10)
+      .populate("movieId"); // gets details from Movie model
+
+    res.json(movies);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// When a movie is watched
+Router.post("/:id/watch", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    let popular = await PopularMovie.findOne({ movieId: id });
+
+    if (!popular) {
+      popular = new PopularMovie({ movieId: id, views: 1 });
+    } else {
+      popular.views += 1;
+    }
+
+    await popular.save();
+    res.json(popular);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /** Auto-create Movie from TMDB ID */
 Router.post("/auto/id", async (req, res) => {
