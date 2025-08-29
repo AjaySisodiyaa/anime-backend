@@ -27,7 +27,7 @@ Router.get("/popular", async (req, res) => {
   try {
     const movies = await PopularMovie.find()
       .sort({ views: -1 }) // or likes, or rating
-      .limit(10)
+      .limit(req.query.limit || 6)
       .populate("movieId"); // gets details from Movie model
 
     res.json(movies);

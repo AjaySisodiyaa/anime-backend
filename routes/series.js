@@ -27,7 +27,7 @@ Router.get("/popular", async (req, res) => {
   try {
     const series = await PopularSeries.find()
       .sort({ views: -1 })
-      .limit(10)
+      .limit(req.query.limit || 6)
       .populate("seriesId");
 
     res.json(series);
