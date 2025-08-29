@@ -98,7 +98,27 @@ app.get("/sitemap.xml", async (req, res) => {
 
 app.get("/random-video", async (req, res) => {
   try {
-    const topics = ["funny shorts", "emotional shorts", "politics shorts"];
+    const topics = [
+      "funny shorts",
+      "emotional shorts",
+      "politics shorts",
+      "love shorts",
+      "couple shorts",
+      "romance shorts",
+      "romantic shorts",
+      "anime shorts",
+      "doraemon shorts",
+      "sad shorts",
+      "happy shorts",
+      "cute shorts",
+      "dog shorts",
+      "cat shorts",
+      "baby shorts",
+      "shorts",
+      "shorts 2023",
+      "shorts 2024",
+      "shorts 2025",
+    ];
     const randomQuery = topics[Math.floor(Math.random() * topics.length)];
 
     const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${randomQuery}&key=AIzaSyATJ5YzlJQukTb5NwvfZT-YUufSVQ5I4ZM`;
