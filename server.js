@@ -96,6 +96,25 @@ app.get("/sitemap.xml", async (req, res) => {
   }
 });
 
+app.get("/random-video", async (req, res) => {
+  try {
+    const topics = ["funny shorts", "emotional shorts", "politics shorts"];
+    const randomQuery = topics[Math.floor(Math.random() * topics.length)];
+
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${randomQuery}&key=AIzaSyATJ5YzlJQukTb5NwvfZT-YUufSVQ5I4ZM`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // pick a random video
+    const items = data.items || [];
+    const randomVideo = items[Math.floor(Math.random() * items.length)];
+
+    res.json(randomVideo);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch video" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
